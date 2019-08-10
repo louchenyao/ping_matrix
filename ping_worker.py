@@ -49,17 +49,25 @@ def ping(host, targets, df=None):
     
     return df
 
+def plot(p):
+    p.date = pd.to_datetime(p.date).dt.time
+    p = p.pivot(index='date', columns='target', values='rtt')
+    ax = p.plot()
+    ax.set_ylabel('ping (ms)')
+    ax.plot()
+    fig = ax.get_figure()
+    fig.savefig("ping.png")
+
 def main():
-    try:
-        df = pd.read_csv("ping.csv").drop(columns=['Unnamed: 0'])
-    except Exception:
-        df = None
+    df = None
     while True:
         time.sleep(1)
         df = ping(host="laptop", targets=["lcy.im", "bj.lcybox.com", "do.lcybox.com", "yeah.moe"], df=df)
         df.to_csv("ping.csv")
-        if (len(df) >= 1000):
+        if (len(df) >= 60*4):
             break
+    plot(df)
+    print(df)
 
 if __name__ == "__main__":
     main()
